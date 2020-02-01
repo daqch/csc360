@@ -1,21 +1,34 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+
 extern char **environ;
 
 void launch(char *args)
 {
-    printf("we are here!");
-    strtok(args, " ");
-    char * = strtok(NULL, ":");
-    char *buffer = (char *)malloc(strlen(getenv("PATH")) * sizeof(char));
-    strncpy(buffer, getenv("PATH"), strlen(getenv("PATH")));
-    strtok(buffer, ":");
+    printf("%s\n", args);
+    char * buffer = (char*)malloc(sizeof(char) * strlen(args));
+    strncpy(buffer, args , strlen(args) );
+    char *executable =   strtok(buffer, " ");
+    char *tmp = strchr(args, ' ');
+    if(tmp != NULL){
+        args = tmp + 1;
+        printf("%s\n",args);
+    }
+    char *path_buffer = (char *)malloc(strlen(getenv("PATH")) * sizeof(char));
+    strncpy(path_buffer, getenv("PATH"), strlen(getenv("PATH")));
+    char* directory = strtok(path_buffer, ":");
+    pid_t pid, wpid
+    while (directory){
+        printf("%s\n", directory);
+    }
 
-    while
-        free(buffer);
+
+    free(path_buffer);
+    free(buffer);
 }
 
 char *help()
@@ -98,16 +111,16 @@ char *evaluate(char *command)
 void seesh_loop()
 {
     size_t size = 512;
-    char *buff;
-    buff = (char *)malloc(size * sizeof(char));
+    char *buff = (char *)malloc(size * sizeof(char));
+    char * line = (char*)malloc(size * sizeof(char));
     while (1)
     {
-
         printf("? ");
         getline(&buff, &size, stdin);
         if (strncmp("\n", buff, 3) == 0)
             continue;
         buff[strcspn(buff, "\n")] = 0;
+        strncpy(line , buff, strlen(buff));
         char *command = strtok(buff, " ");
         char *seesh_out;
         if (strncmp(command, "exit", 4) == 0)
@@ -116,10 +129,15 @@ void seesh_loop()
             seesh_out = evaluate(command);
         if (seesh_out)
             if (strncmp(seesh_out, "executable", 10) == 0)
-                launch(buff);
+                launch(line);
             else
                 printf("%s\n", seesh_out);
+        buff[0] = '\0';
+        memset(line,0,strlen(line));
+        
     }
+    free(buff);
+        
 }
 
 void seesh_launch()
