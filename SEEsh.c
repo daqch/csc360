@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <errno.h>
 
 extern char **environ;
 
@@ -21,12 +21,22 @@ void launch(char *args)
     char *path_buffer = (char *)malloc(strlen(getenv("PATH")) * sizeof(char));
     strncpy(path_buffer, getenv("PATH"), strlen(getenv("PATH")));
     char* directory = strtok(path_buffer, ":");
-    pid_t pid, wpid
-    while (directory){
-        printf("%s\n", directory);
+    pid_t pid, wpid;
+    int status;
+    pid = fork();
+    if (pid == 0){
+        if (execvp(executable, tmp) == -1) {
+            perror("lsh");
+        }
+        exit(EXIT_FAILURE);
+    }else if (pid < 0){
+        perror("lsh");
     }
-
-
+    else {
+        do {
+            wpid = waitpid(pid, &status, WUNTRACED);
+        }while (!WIFEXITED(status)&& !WIFSIGNALED(status));
+    }
     free(path_buffer);
     free(buffer);
 }
